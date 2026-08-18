@@ -1,0 +1,7 @@
+{
+  "name": "society-st-pius-x-site",
+  "private": true,
+  "dependencies": {
+    "@netlify/blobs": "^8.1.0"
+  }
+}

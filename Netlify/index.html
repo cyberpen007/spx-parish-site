@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Society St Pius X</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --bg:#3a0d15;
+    --bg-alt:#4e131c;
+    --bg-alt-2:#5e1722;
+    --burgundy:#7a1c28;
+    --burgundy-dark:#2b0a0f;
+    --gold:#c9a24c;
+    --gold-light:#e2c17a;
+    --cream:#f3ead6;
+    --cream-soft:#cbb797;
+    --ink:#241a12;
+    --shadow: 0 8px 28px rgba(15,4,7,0.4);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--cream);
+    font-family:'EB Garamond', serif;
+    font-size:19px;
+    line-height:1.65;
+  }
+  h1,h2,h3,.numeral{font-family:'Cinzel', serif; letter-spacing:0.03em;}
+  h1{font-weight:700;}
+  h2.section-title{font-weight:600; font-size:2rem; letter-spacing:0.06em; color:var(--cream);}
+  h3{font-family:'Cormorant Garamond', serif; font-weight:600; font-style:italic; font-size:1.5rem; color:var(--gold-light);}
+  a{color:var(--gold-light);}
+  img,video{max-width:100%; display:block;}
+
+  /* -------- Reduced motion -------- */
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    *{animation:none !important; transition:none !important;}
+  }
+
+  /* -------- Top bar -------- */
+  .topbar{
+    position:sticky; top:0; z-index:50;
+    background:var(--burgundy-dark);
+    border-bottom:1px solid var(--gold);
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0.7rem 2rem;
+    flex-wrap:wrap;
+    gap:0.5rem;
+  }
+  .brandmark{display:flex; align-items:center; gap:0.6rem;}
+  .brandmark svg{flex:none;}
+  .brand-name{font-family:'Cinzel',serif; font-size:1.05rem; font-weight:600; color:var(--gold-light); letter-spacing:0.05em;}
+  nav.mainnav{display:flex; gap:1.1rem; flex-wrap:wrap;}
+  nav.mainnav a{
+    font-family:'Cormorant Garamond', serif;
+    font-size:1.05rem;
+    text-decoration:none;
+    color:var(--cream);
+    border-bottom:1px solid transparent;
+    padding-bottom:2px;
+  }
+  nav.mainnav a:hover{border-bottom:1px solid var(--gold);}
+  .lock-btn{
+    background:none; border:1px solid var(--gold); color:var(--gold-light);
+    font-family:'Cormorant Garamond', serif; font-size:0.95rem;
+    padding:0.35rem 0.9rem; border-radius:2px; cursor:pointer;
+  }
+  .lock-btn:hover{background:var(--gold); color:var(--burgundy-dark);}
+  body.editing .lock-btn{background:var(--gold); color:var(--burgundy-dark); border-color:var(--gold);}
+
+  /* -------- Hero -------- */
+  .hero{
+    position:relative;
+    padding:6rem 2rem 5rem;
+    text-align:center;
+    background:
+      radial-gradient(ellipse at top, rgba(201,162,76,0.16), transparent 60%),
+      var(--bg);
+    border-bottom:1px solid var(--gold);
+    overflow:hidden;
+  }
+  .hero .cross{margin:0 auto 1.6rem; width:46px; height:64px;}
+  .hero-eyebrow{
+    font-family:'Cinzel',serif; font-size:0.8rem; letter-spacing:0.35em;
+    color:var(--gold); text-transform:uppercase; margin-bottom:1rem;
+  }
+  .hero h1{font-size:clamp(2.4rem, 5vw, 4rem); margin:0 0 0.6rem; color:var(--cream);}
+  .hero .tagline{
+    font-family:'Cormorant Garamond', serif; font-style:italic; font-size:1.4rem;
+    color:var(--cream-soft); max-width:640px; margin:0 auto 2rem;
+  }
+  .hero-actions{display:flex; gap:1rem; justify-content:center; flex-wrap:wrap;}
+  .btn{
+    display:inline-block; font-family:'Cinzel', serif; font-size:0.82rem; letter-spacing:0.12em;
+    text-transform:uppercase; text-decoration:none; padding:0.85rem 1.8rem; border-radius:2px;
+    cursor:pointer; border:1px solid var(--gold);
+  }
+  .btn-primary{background:var(--gold); color:var(--burgundy-dark); border-color:var(--gold);}
+  .btn-primary:hover{background:var(--gold-light);}
+  .btn-ghost{background:transparent; color:var(--gold-light);}
+  .btn-ghost:hover{background:rgba(201,162,76,0.1);}
+
+  /* -------- Section scaffolding -------- */
+  section{padding:5rem 2rem; max-width:980px; margin:0 auto;}
+  .section-head{display:flex; align-items:baseline; gap:1.1rem; margin-bottom:2.6rem;}
+  .numeral{
+    font-size:1rem; color:var(--gold); border:1px solid var(--gold);
+    width:2.4rem; height:2.4rem; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    flex:none;
+  }
+  .divider{
+    display:flex; align-items:center; gap:1rem; max-width:980px; margin:0 auto; padding:0 2rem;
+  }
+  .divider .line{flex:1; height:1px; background:linear-gradient(90deg, transparent, var(--gold), transparent);}
+  .divider svg{flex:none; opacity:0.85;}
+
+  /* -------- Editable elements -------- */
+  [data-edit]{
+    outline:none; border-radius:2px;
+  }
+  body.editing [data-edit]{
+    cursor:text;
+    box-shadow:0 0 0 1px dashed var(--gold);
+    background:rgba(201,162,76,0.1);
+    padding:2px 4px;
+  }
+  body.editing [data-edit]:focus{
+    box-shadow:0 0 0 2px var(--gold-light);
+    background:rgba(243,234,214,0.12);
+  }
+  .save-flash{outline:2px solid var(--gold);}
+
+  /* -------- Service times -------- */
+  .times-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(220px,1fr)); gap:1.4rem; margin-bottom:2.4rem;}
+  .time-card{
+    background:var(--bg-alt); border:1px solid var(--gold); border-radius:3px;
+    padding:1.5rem; text-align:center; box-shadow:var(--shadow);
+  }
+  .time-card .day{font-family:'Cinzel',serif; font-size:0.85rem; letter-spacing:0.1em; color:var(--gold-light); margin-bottom:0.4rem;}
+  .time-card .time{font-family:'Cormorant Garamond',serif; font-size:1.6rem; font-style:italic; color:var(--cream);}
+  .location-block{display:flex; gap:2rem; flex-wrap:wrap; align-items:flex-start;}
+  .location-block .addr{flex:1; min-width:240px;}
+  .map-frame{flex:1; min-width:240px; height:260px; border:1px solid var(--gold); border-radius:3px; overflow:hidden;}
+  .map-frame iframe{width:100%; height:100%; border:0;}
+  .map-search-hint{
+    font-family:'Cormorant Garamond', serif; font-style:italic; font-size:1.25rem;
+    color:var(--gold-light); margin:0 0 0.5rem;
+  }
+  .map-search{
+    display:flex; gap:0.6rem; margin-bottom:0.8rem; flex-wrap:wrap;
+  }
+  .map-search input{
+    flex:1; min-width:160px;
+    font-family:'EB Garamond', serif; font-size:0.95rem;
+    padding:0.6rem 0.8rem; border:1px solid var(--gold); border-radius:2px;
+    background:var(--cream); color:var(--ink);
+  }
+  .map-search button{
+    font-family:'Cinzel', serif; font-size:0.75rem; letter-spacing:0.08em; text-transform:uppercase;
+    padding:0.6rem 1.1rem; border-radius:2px; border:1px solid var(--gold);
+    background:var(--gold); color:var(--burgundy-dark); cursor:pointer; white-space:nowrap;
+  }
+  .map-search button:hover{background:var(--gold-light);}
+  .map-search-note{
+    font-family:'Cormorant Garamond',serif; font-style:italic; font-size:0.85rem;
+    color:var(--cream-soft); margin:-0.3rem 0 0.8rem;
+  }
+
+  /* -------- About -------- */
+  .about-grid{display:grid; grid-template-columns:220px 1fr; gap:2.2rem; align-items:start;}
+  .pastor-photo{
+    width:100%; aspect-ratio:3/4; object-fit:cover; border:1px solid var(--gold); border-radius:3px; background:var(--bg-alt);
+  }
+  @media (max-width:640px){.about-grid{grid-template-columns:1fr;} .pastor-photo{max-width:220px;}}
+
+  /* -------- Lightbox (view original size) -------- */
+  .lightbox-overlay{
+    display:none; position:fixed; inset:0; z-index:300;
+    background:rgba(15,4,7,0.9);
+    align-items:center; justify-content:center; padding:40px;
+  }
+  .lightbox-overlay.open{ display:flex; }
+  .lightbox-overlay img{
+    max-width:100%; max-height:100%; border-radius:3px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.6);
+  }
+  .lightbox-close{
+    position:absolute; top:20px; right:26px; z-index:301;
+    background:transparent; border:1px solid var(--gold); color:var(--gold-light);
+    width:40px; height:40px; border-radius:50%; font-size:1.3rem; line-height:1;
+    cursor:pointer; display:flex; align-items:center; justify-content:center;
+  }
+  .lightbox-close:hover{ background:var(--gold); color:var(--burgundy-dark); }
+  .pastor-photo, .gallery-item img{ cursor:zoom-in; }
+
+  /* -------- Sermons -------- */
+  .sermon-list{display:flex; flex-direction:column; gap:1.1rem;}
+  .sermon-item{
+    display:flex; justify-content:space-between; align-items:center; gap:1rem;
+    padding:1.1rem 1.3rem; background:var(--bg-alt); border-left:3px solid var(--gold); border-radius:2px;
+    flex-wrap:wrap;
+  }
+  .sermon-item .meta{font-family:'Cormorant Garamond',serif; font-style:italic; color:var(--cream-soft); font-size:0.95rem;}
+
+  /* -------- Events -------- */
+  .events-list{display:flex; flex-direction:column; gap:0;}
+  .event-row{
+    display:grid; grid-template-columns:90px 1fr; gap:1.2rem; padding:1.1rem 0;
+    border-bottom:1px solid var(--bg-alt-2);
+  }
+  .event-date{
+    font-family:'Cinzel',serif; text-align:center; color:var(--gold-light);
+    border-right:1px solid var(--gold); padding-right:1.2rem;
+  }
+  .event-date .d{font-size:1.6rem; font-weight:600; line-height:1;}
+  .event-date .m{font-size:0.75rem; letter-spacing:0.1em; text-transform:uppercase;}
+
+  /* -------- Gallery -------- */
+  .dropzone{
+    border:1.5px dashed var(--gold); border-radius:4px; padding:2rem; text-align:center;
+    color:var(--cream-soft); font-family:'Cormorant Garamond',serif; font-style:italic; margin-bottom:1.6rem;
+    display:none;
+  }
+  body.editing .dropzone{display:block;}
+  .dropzone.dragover{background:rgba(201,162,76,0.14); border-color:var(--gold-light);}
+  .gallery-grid{
+    display:grid; grid-template-columns:repeat(auto-fill, minmax(200px,1fr)); gap:0.9rem;
+  }
+  .gallery-item{
+    position:relative; border-radius:3px; overflow:hidden; border:1px solid var(--gold);
+    aspect-ratio:4/3; background:var(--bg-alt);
+  }
+  .gallery-item img, .gallery-item video{width:100%; height:100%; object-fit:cover;}
+  .gallery-item .remove-btn{
+    position:absolute; top:6px; right:6px; background:rgba(20,7,10,0.8); color:var(--cream); border:none;
+    width:24px; height:24px; border-radius:50%; cursor:pointer; display:none; font-size:0.9rem; line-height:1;
+  }
+  body.editing .gallery-item .remove-btn{display:block;}
+  .gallery-empty{font-family:'Cormorant Garamond',serif; font-style:italic; color:var(--cream-soft);}
+
+  /* -------- Donate (signature inverted moment) -------- */
+  .donate-box{
+    background:var(--cream); color:var(--ink); border-radius:4px; padding:2.4rem;
+    text-align:center; box-shadow:var(--shadow);
+  }
+  .donate-box h3{color:var(--burgundy);}
+  .donate-box [data-edit]{color:var(--ink);}
+  .donate-box .btn-primary{background:var(--burgundy); border-color:var(--burgundy); color:var(--cream);}
+  .donate-box .btn-primary:hover{background:var(--burgundy-dark);}
+  .donate-methods{
+    display:flex; gap:1.2rem; justify-content:center; margin-top:1.6rem; flex-wrap:wrap;
+    font-family:'Cormorant Garamond',serif; font-style:italic; font-size:1.05rem; color:var(--ink);
+  }
+
+  /* -------- Contact -------- */
+  .contact-grid{display:grid; grid-template-columns:1fr 1fr; gap:2.4rem;}
+  @media (max-width:700px){.contact-grid{grid-template-columns:1fr;}}
+  form.contact-form{display:flex; flex-direction:column; gap:0.9rem;}
+  form.contact-form input, form.contact-form textarea{
+    font-family:'EB Garamond', serif; font-size:1rem;
+    padding:0.7rem 0.85rem; border:1px solid var(--gold); border-radius:2px;
+    background:var(--cream); color:var(--ink);
+  }
+  form.contact-form textarea{min-height:110px; resize:vertical;}
+  form.contact-form label{font-family:'Cormorant Garamond',serif; font-size:0.9rem; color:var(--cream-soft);}
+  .form-status{font-family:'Cormorant Garamond',serif; font-style:italic; min-height:1.4em; font-size:0.95rem; color:var(--gold-light);}
+
+  footer{
+    text-align:center; padding:3rem 2rem 4rem; color:var(--cream-soft);
+    font-family:'Cormorant Garamond',serif; font-style:italic; font-size:0.95rem;
+    border-top:1px solid var(--gold); margin-top:2rem;
+  }
+  .footer-credit{
+    font-size:1.1rem; letter-spacing:0.04em; opacity:0.9; margin-top:1.4rem; color:var(--gold-light);
+  }
+
+  /* -------- Modal -------- */
+  .modal-overlay{
+    position:fixed; inset:0; background:rgba(15,4,7,0.65); display:none;
+    align-items:center; justify-content:center; z-index:100; padding:1rem;
+  }
+  .modal-overlay.open{display:flex;}
+  .modal{
+    background:var(--bg-alt); border:1px solid var(--gold); border-radius:4px;
+    padding:2rem; max-width:360px; width:100%; text-align:center; box-shadow:var(--shadow);
+  }
+  .modal h3{margin-top:0; color:var(--gold-light);}
+  .modal input{
+    width:100%; padding:0.7rem 0.85rem; font-family:'EB Garamond',serif; font-size:1rem;
+    border:1px solid var(--gold); border-radius:2px; margin:1rem 0; background:var(--cream); color:var(--ink);
+  }
+  .modal .modal-actions{display:flex; gap:0.8rem; justify-content:center;}
+  .modal .msg{font-size:0.9rem; color:var(--gold-light); min-height:1.2em;}
+
+  .toast{
+    position:fixed; bottom:1.4rem; left:50%; transform:translateX(-50%) translateY(20px);
+    background:var(--gold); color:var(--burgundy-dark); padding:0.7rem 1.3rem; border-radius:3px;
+    font-family:'Cormorant Garamond',serif; font-style:italic; opacity:0; pointer-events:none;
+    transition:opacity 0.25s ease, transform 0.25s ease; z-index:200; font-size:0.95rem;
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+  .add-row-btn{
+    display:none; font-family:'Cormorant Garamond',serif; font-style:italic; font-size:0.95rem;
+    background:none; border:1px dashed var(--gold); color:var(--gold-light); padding:0.5rem 1rem;
+    border-radius:2px; cursor:pointer; margin-top:0.8rem;
+  }
+  body.editing .add-row-btn{display:inline-block;}
+  body.editing .remove-row-btn{display:inline-block !important;}
+  .remove-row-btn{
+    display:none; background:none; border:none; color:var(--gold-light); cursor:pointer; font-size:0.85rem;
+    font-family:'Cormorant Garamond',serif; text-decoration:underline;
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ TOP BAR ============ -->
+<div class="topbar">
+  <div class="brandmark">
+    <svg width="22" height="30" viewBox="0 0 22 30" fill="none">
+      <path d="M10 0h2v11h9v2h-9v17h-2V13H1v-2h9V0z" fill="#c9a24c"/>
+    </svg>
+    <span class="brand-name">St. Pius X</span>
+  </div>
+  <nav class="mainnav">
+    <a href="#times">Mass &amp; Location</a>
+    <a href="#about">About</a>
+    <a href="#sermons">Sermons</a>
+    <a href="#events">Events</a>
+    <a href="#gallery">Gallery</a>
+    <a href="#donate">Giving</a>
+    <a href="#contact">Contact</a>
+  </nav>
+  <button class="lock-btn" id="lockBtn" type="button">Unlock Editing</button>
+</div>
+
+<!-- ============ HERO ============ -->
+<div class="hero" id="home">
+  <svg class="cross" viewBox="0 0 46 64" fill="none">
+    <rect x="20" y="0" width="6" height="64" fill="#c9a24c"/>
+    <rect x="0" y="16" width="46" height="6" fill="#c9a24c"/>
+  </svg>
+  <div class="hero-eyebrow">Roman Catholic Parish</div>
+  <h1 data-edit="hero_name">Society St Pius X</h1>
+  <p class="tagline" data-edit="hero_tagline">A traditional parish home for the Holy Sacrifice of the Mass, the Sacraments, and the formation of souls in the Catholic Faith.</p>
+  <div class="hero-actions">
+    <a href="#times" class="btn btn-primary">Mass Times</a>
+    <a href="#contact" class="btn btn-ghost">Visit Us</a>
+  </div>
+</div>
+
+<!-- ============ DIVIDER ============ -->
+<div class="divider"><div class="line"></div><svg width="20" height="26" viewBox="0 0 20 26"><rect x="8" y="0" width="4" height="26" fill="#c9a24c"/><rect x="0" y="7" width="20" height="4" fill="#c9a24c"/></svg><div class="line"></div></div>
+
+<!-- ============ I. SERVICE TIMES & LOCATION ============ -->
+<section id="times">
+  <div class="section-head">
+    <div class="numeral">I</div>
+    <h2 class="section-title">Mass Times &amp; Location</h2>
+  </div>
+
+  <div class="times-grid" id="timesGrid">
+    <div class="time-card">
+      <div class="day" data-edit="time1_day">Sunday</div>
+      <div class="time" data-edit="time1_time">7:30 AM &amp; 10:00 AM</div>
+    </div>
+    <div class="time-card">
+      <div class="day" data-edit="time2_day">Tuesday – Friday</div>
+      <div class="time" data-edit="time2_time">7:00 AM</div>
+    </div>
+    <div class="time-card">
+      <div class="day" data-edit="time3_day">Saturday</div>
+      <div class="time" data-edit="time3_time">8:00 AM &amp; 5:00 PM (Vigil)</div>
+    </div>
+    <div class="time-card">
+      <div class="day" data-edit="time4_day">Holy Days</div>
+      <div class="time" data-edit="time4_time">Please see bulletin</div>
+    </div>
+  </div>
+
+  <div class="location-block">
+    <div class="addr">
+      <h3>Find Us</h3>
+      <p data-edit="location_address">123 Cathedral Way<br>Your City, State 00000</p>
+      <p data-edit="location_note">Confessions heard 30 minutes before every Mass, or by appointment.</p>
+    </div>
+    <div class="map-frame-wrap" style="flex:1; min-width:240px;">
+      <p class="map-search-hint">Please Type: "SSPX Bacolod" to search the location</p>
+      <div class="map-search">
+        <input type="text" id="mapSearchInput" placeholder="Search a place, e.g. SSPX Immaculate Conception Roman" onkeydown="if(event.key==='Enter'){event.preventDefault(); searchMap();}">
+        <button type="button" onclick="searchMap()">Search</button>
+      </div>
+      <div class="map-frame">
+        <iframe id="mapIframe" loading="lazy" src="https://www.google.com/maps?q=Catholic+Church&output=embed" title="Parish location map"></iframe>
+      </div>
+      <div class="map-search-note" id="mapSearchNote"></div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"><div class="line"></div><svg width="20" height="26" viewBox="0 0 20 26"><rect x="8" y="0" width="4" height="26" fill="#c9a24c"/><rect x="0" y="7" width="20" height="4" fill="#c9a24c"/></svg><div class="line"></div></div>
+
+<!-- ============ II. ABOUT ============ -->
+<section id="about">
+  <div class="section-head">
+    <div class="numeral">II</div>
+    <h2 class="section-title">About Our Parish</h2>
+  </div>
+  <div class="about-grid">
+    <img class="pastor-photo" id="pastorPhoto" src="https://images.unsplash.com/photo-1544376798-89aa6b82c6ee?w=400&q=80" alt="Pastor portrait">
+    <div>
+      <h3 data-edit="pastor_name">Rev. Fr. John Smith</h3>
+      <p data-edit="pastor_bio">Fr. Smith has served this parish faithfully since his ordination, guiding the community with a deep devotion to the traditional liturgy and the teachings of the Church. He holds daily office hours for spiritual direction and confession.</p>
+      <p data-edit="parish_history">Founded in memory of Pope St. Pius X, our parish has stood as a home for the Catholic faithful for over sixty years, holding fast to the timeless traditions of the Roman Rite while serving the needs of families in our community.</p>
+    </div>
+  </div>
+</section>
+
+<div class="divider"><div class="line"></div><svg width="20" height="26" viewBox="0 0 20 26"><rect x="8" y="0" width="4" height="26" fill="#c9a24c"/><rect x="0" y="7" width="20" height="4" fill="#c9a24c"/></svg><div class="line"></div></div>
+
+<!-- ============ III. SERMONS ============ -->
+<section id="sermons">
+  <div class="section-head">
+    <div class="numeral">III</div>
+    <h2 class="section-title">Sermons &amp; Media</h2>
+  </div>
+  <div class="sermon-list" id="sermonList">
+    <div class="sermon-item">
+      <div>
+        <div data-edit="sermon1_title">On the Meaning of Sacrifice</div>
+        <div class="meta" data-edit="sermon1_meta">Fr. John Smith — Fifth Sunday after Pentecost</div>
+      </div>
+      <a class="btn btn-ghost" data-edit-href="sermon1_link" href="#" style="font-size:0.75rem;">Listen</a>
+    </div>
+    <div class="sermon-item">
+      <div>
+        <div data-edit="sermon2_title">The Rosary as Armor</div>
+        <div class="meta" data-edit="sermon2_meta">Fr. John Smith — Feast of Our Lady of the Rosary</div>
+      </div>
+      <a class="btn btn-ghost" data-edit-href="sermon2_link" href="#" style="font-size:0.75rem;">Listen</a>
+    </div>
+  </div>
+</section>
+
+<div class="divider"><div class="line"></div><svg width="20" height="26" viewBox="0 0 20 26"><rect x="8" y="0" width="4" height="26" fill="#c9a24c"/><rect x="0" y="7" width="20" height="4" fill="#c9a24c"/></svg><div class="line"></div></div>
+
+<!-- ============ IV. EVENTS ============ -->
+<section id="events">
+  <div class="section-head">
+    <div class="numeral">IV</div>
+    <h2 class="section-title">Parish Calendar</h2>
+  </div>
+  <div class="events-list" id="eventsList">
+    <div class="event-row">
+      <div class="event-date"><div class="d" data-edit="event1_day">14</div><div class="m" data-edit="event1_month">Sep</div></div>
+      <div>
+        <strong data-edit="event1_title">Exaltation of the Holy Cross — Sung Mass</strong>
+        <p data-edit="event1_desc" style="margin:0.3rem 0 0;">Solemn High Mass followed by a parish reception in the hall.</p>
+      </div>
+    </div>
+    <div class="event-row">
+      <div class="event-date"><div class="d" data-edit="event2_day">7</div><div class="m" data-edit="event2_month">Oct</div></div>
+      <div>
+        <strong data-edit="event2_title">Feast of the Holy Rosary</strong>
+        <p data-edit="event2_desc" style="margin:0.3rem 0 0;">Rosary procession begins at 6:00 PM, followed by Benediction.</p>
+      </div>
+    </div>
+    <div class="event-row">
+      <div class="event-date"><div class="d" data-edit="event3_day">1</div><div class="m" data-edit="event3_month">Nov</div></div>
+      <div>
+        <strong data-edit="event3_title">All Saints' Day — Holy Day of Obligation</strong>
+        <p data-edit="event3_desc" style="margin:0.3rem 0 0;">Masses at 7:00 AM, 12:00 PM, and 6:00 PM.</p>
+      </div>
+    </div>
+    <div class="event-row">
+      <div class="event-date"><div class="d" data-edit="event4_day">8</div><div class="m" data-edit="event4_month">Dec</div></div>
+      <div>
+        <strong data-edit="event4_title">Feast of the Immaculate Conception</strong>
+        <p data-edit="event4_desc" style="margin:0.3rem 0 0;">Solemn Mass at 9:00 AM, followed by a parish potluck.</p>
+      </div>
+    </div>
+    <div class="event-row">
+      <div class="event-date"><div class="d" data-edit="event5_day">25</div><div class="m" data-edit="event5_month">Dec</div></div>
+      <div>
+        <strong data-edit="event5_title">Christmas — Midnight Mass &amp; Day Masses</strong>
+        <p data-edit="event5_desc" style="margin:0.3rem 0 0;">Midnight Mass at 12:00 AM; Day Masses at 8:00 AM and 10:00 AM.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"><div class="line"></div><svg width="20" height="26" viewBox="0 0 20 26"><rect x="8" y="0" width="4" height="26" fill="#c9a24c"/><rect x="0" y="7" width="20" height="4" fill="#c9a24c"/></svg><div class="line"></div></div>
+
+<!-- ============ V. GALLERY ============ -->
+<section id="gallery">
+  <div class="section-head">
+    <div class="numeral">V</div>
+    <h2 class="section-title">Photo &amp; Video Gallery</h2>
+  </div>
+  <div class="dropzone" id="dropzone">
+    Drag &amp; drop photos or videos here, or click to choose files<br>
+    <input type="file" id="fileInput" accept="image/*,video/*" multiple style="display:none;">
+  </div>
+  <div class="gallery-grid" id="galleryGrid">
+    <div class="gallery-empty">Loading gallery…</div>
+  </div>
+</section>
+
+<div class="divider"><div class="line"></div><svg width="20" height="26" viewBox="0 0 20 26"><rect x="8" y="0" width="4" height="26" fill="#c9a24c"/><rect x="0" y="7" width="20" height="4" fill="#c9a24c"/></svg><div class="line"></div></div>
+
+<!-- ============ VI. DONATE ============ -->
+<section id="donate">
+  <div class="section-head">
+    <div class="numeral">VI</div>
+    <h2 class="section-title">Support Our Parish</h2>
+  </div>
+  <div class="donate-box">
+    <h3 data-edit="donate_heading">Your Gift Sustains Our Mission</h3>
+    <p data-edit="donate_body">Every offering helps maintain our church, support our clergy, and carry the Sacraments to the faithful. Thank you for your generosity.</p>
+    <a href="#" class="btn btn-primary" data-edit-href="donate_link">Give Online</a>
+    <div class="donate-methods">
+      <span data-edit="donate_method1">Sunday collection basket</span>
+      <span data-edit="donate_method2">Mail: 123 Cathedral Way</span>
+      <span data-edit="donate_method3">Bank transfer on request</span>
+    </div>
+  </div>
+</section>
+
+<div class="divider"><div class="line"></div><svg width="20" height="26" viewBox="0 0 20 26"><rect x="8" y="0" width="4" height="26" fill="#c9a24c"/><rect x="0" y="7" width="20" height="4" fill="#c9a24c"/></svg><div class="line"></div></div>
+
+<!-- ============ VII. CONTACT ============ -->
+<section id="contact">
+  <div class="section-head">
+    <div class="numeral">VII</div>
+    <h2 class="section-title">Contact the Parish Office</h2>
+  </div>
+  <div class="contact-grid">
+    <div>
+      <p data-edit="contact_intro">Have a question, need to arrange a Sacrament, or wish to reach the parish office? Send a message below and we will reply as soon as we're able.</p>
+      <p data-edit="contact_phone">Office: (000) 000-0000</p>
+      <p data-edit="contact_email">Email: office@stpiusx.org</p>
+      <p data-edit="contact_hours">Office hours: Mon–Fri, 9:00 AM – 4:00 PM</p>
+      <p class="footer-credit" data-edit="footer_credit">Website by Your Name / Studio</p>
+    </div>
+    <form class="contact-form" id="contactForm">
+      <div>
+        <label for="cf_name">Name</label>
+        <input id="cf_name" name="name" required>
+      </div>
+      <div>
+        <label for="cf_email">Email</label>
+        <input id="cf_email" name="email" type="email" required>
+      </div>
+      <div>
+        <label for="cf_message">Message</label>
+        <textarea id="cf_message" name="message" required></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary" style="align-self:flex-start;">Send Message</button>
+      <div class="form-status" id="formStatus"></div>
+    </form>
+  </div>
+</section>
+
+<footer>
+  <p data-edit="footer_text">St. Pius X Catholic Church — Ad Majorem Dei Gloriam</p>
+</footer>
+
+<!-- ============ EDIT-LOCK MODAL ============ -->
+<div class="modal-overlay" id="lockModal">
+  <div class="modal">
+    <h3 id="modalTitle">Unlock Editing</h3>
+    <input type="password" id="modalPassword" placeholder="Enter password" autocomplete="off">
+    <div class="msg" id="modalMsg"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" type="button" id="modalCancel">Cancel</button>
+      <button class="btn btn-primary" type="button" id="modalSubmit">Unlock</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="lightbox-overlay" id="lightboxOverlay">
+  <button class="lightbox-close" id="lightboxClose" title="Close">&times;</button>
+  <img id="lightboxImg" src="" alt="">
+</div>
+
+<script>
+/* =========================================================
+   LIGHTBOX: view uploaded photos at original size
+========================================================= */
+const lightboxOverlay = document.getElementById('lightboxOverlay');
+const lightboxImg = document.getElementById('lightboxImg');
+
+function openLightbox(src, alt){
+  if(!src) return;
+  lightboxImg.src = src;
+  lightboxImg.alt = alt || '';
+  lightboxOverlay.classList.add('open');
+}
+function closeLightbox(){
+  lightboxOverlay.classList.remove('open');
+  lightboxImg.src = '';
+}
+document.getElementById('lightboxClose').addEventListener('click', closeLightbox);
+lightboxOverlay.addEventListener('click', (e)=>{
+  if(e.target === lightboxOverlay) closeLightbox();
+});
+document.addEventListener('keydown', (e)=>{
+  if(e.key === 'Escape') closeLightbox();
+});
+
+/* =========================================================
+   CONFIG
+========================================================= */
+const SUPABASE_URL = "https://gvwwywapsghxizllkjtt.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_Q-woGpB0ZPIavL0DfFn4GQ_lUMvw5qk";
+const EDIT_PASSWORD = "PiusX2024";   // <-- change this to whatever you like
+
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+/* =========================================================
+   TOAST
+========================================================= */
+let toastTimer;
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove('show'), 2200);
+}
+
+/* =========================================================
+   EDIT LOCK
+========================================================= */
+const lockBtn = document.getElementById('lockBtn');
+const lockModal = document.getElementById('lockModal');
+const modalPassword = document.getElementById('modalPassword');
+const modalMsg = document.getElementById('modalMsg');
+const modalSubmit = document.getElementById('modalSubmit');
+const modalCancel = document.getElementById('modalCancel');
+
+let editing = false;
+
+function openModal(){
+  modalPassword.value = '';
+  modalMsg.textContent = '';
+  lockModal.classList.add('open');
+  setTimeout(()=>modalPassword.focus(), 50);
+}
+function closeModal(){ lockModal.classList.remove('open'); }
+
+lockBtn.addEventListener('click', ()=>{
+  if(editing){
+    setEditing(false);
+    showToast('Editing locked');
+  } else {
+    openModal();
+  }
+});
+modalCancel.addEventListener('click', closeModal);
+lockModal.addEventListener('click', (e)=>{ if(e.target === lockModal) closeModal(); });
+modalPassword.addEventListener('keydown', (e)=>{ if(e.key === 'Enter') modalSubmit.click(); });
+
+modalSubmit.addEventListener('click', ()=>{
+  if(modalPassword.value === EDIT_PASSWORD){
+    setEditing(true);
+    closeModal();
+    showToast('Editing unlocked');
+  } else {
+    modalMsg.textContent = 'Incorrect password.';
+  }
+});
+
+function setEditing(on){
+  editing = on;
+  document.body.classList.toggle('editing', on);
+  lockBtn.textContent = on ? 'Lock Editing' : 'Unlock Editing';
+  document.querySelectorAll('[data-edit]').forEach(el=>{
+    el.setAttribute('contenteditable', on ? 'true' : 'false');
+  });
+  document.querySelectorAll('[data-edit-href]').forEach(el=>{
+    if(on){
+      el.addEventListener('click', preventNavWhileEditing);
+    } else {
+      el.removeEventListener('click', preventNavWhileEditing);
+    }
+  });
+}
+function preventNavWhileEditing(e){ e.preventDefault(); editHrefPrompt(e.currentTarget); }
+
+function editHrefPrompt(el){
+  const key = el.getAttribute('data-edit-href');
+  const current = el.getAttribute('href') || '';
+  const next = prompt('Enter URL for this link:', current === '#' ? '' : current);
+  if(next !== null && next.trim() !== ''){
+    el.setAttribute('href', next.trim());
+    saveContent(key, next.trim());
+  }
+}
+
+/* =========================================================
+   MAP SEARCH
+========================================================= */
+const mapIframe = document.getElementById('mapIframe');
+const mapSearchInput = document.getElementById('mapSearchInput');
+const mapSearchNote = document.getElementById('mapSearchNote');
+
+function applyMapQuery(query){
+  mapIframe.src = 'https://www.google.com/maps?q=' + encodeURIComponent(query) + '&output=embed';
+}
+
+async function searchMap(){
+  const query = mapSearchInput.value.trim();
+  if(!query) return;
+  applyMapQuery(query);
+  if(editing){
+    const ok = await saveContent('location_map_query', query);
+    mapSearchNote.textContent = ok ? 'Saved as the default map location.' : '';
+  } else {
+    mapSearchNote.textContent = '';
+  }
+}
+
+/* =========================================================
+   TEXT CONTENT: load + save to church_content
+========================================================= */
+const editableEls = Array.from(document.querySelectorAll('[data-edit]'));
+
+async function loadContent(){
+  const { data, error } = await sb.from('church_content').select('content_id, value');
+  if(error){ console.error(error); return; }
+  const map = {};
+  (data || []).forEach(row => map[row.content_id] = row.value);
+
+  editableEls.forEach(el=>{
+    const key = el.getAttribute('data-edit');
+    if(map[key] !== undefined){
+      el.innerHTML = map[key];
+    }
+  });
+  document.querySelectorAll('[data-edit-href]').forEach(el=>{
+    const key = el.getAttribute('data-edit-href');
+    if(map[key] !== undefined){
+      el.setAttribute('href', map[key]);
+    }
+  });
+  if(map['pastor_photo_url']){
+    document.getElementById('pastorPhoto').src = map['pastor_photo_url'];
+  }
+  if(map['location_map_query']){
+    applyMapQuery(map['location_map_query']);
+    mapSearchInput.value = map['location_map_query'];
+  }
+}
+
+async function saveContent(key, value){
+  const { error } = await sb.from('church_content').upsert({
+    content_id: key, value: value, updated_at: new Date().toISOString()
+  });
+  if(error){ console.error(error); showToast('Save failed — check connection'); return false; }
+  return true;
+}
+
+editableEls.forEach(el=>{
+  el.addEventListener('blur', async ()=>{
+    if(!editing) return;
+    const key = el.getAttribute('data-edit');
+    const ok = await saveContent(key, el.innerHTML);
+    if(ok){
+      el.classList.add('save-flash');
+      setTimeout(()=>el.classList.remove('save-flash'), 500);
+    }
+  });
+});
+
+/* Pastor photo: click to replace while editing, click to view full-size otherwise */
+document.getElementById('pastorPhoto').addEventListener('click', ()=>{
+  if(!editing){
+    openLightbox(document.getElementById('pastorPhoto').src, 'Pastor portrait');
+    return;
+  }
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.onchange = async ()=>{
+    if(!input.files[0]) return;
+    const url = await uploadFile(input.files[0], 'pastor-photo');
+    if(url){
+      document.getElementById('pastorPhoto').src = url;
+      await saveContent('pastor_photo_url', url);
+      showToast('Photo updated');
+    }
+  };
+  input.click();
+});
+
+/* =========================================================
+   MEDIA UPLOAD -> Netlify Blobs (via Netlify Functions)
+========================================================= */
+function fileToBase64(file){
+  return new Promise((resolve, reject)=>{
+    const reader = new FileReader();
+    reader.onload = ()=> resolve(reader.result.split(',')[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+async function uploadFile(file, prefix){
+  const safeName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_');
+  try{
+    const dataBase64 = await fileToBase64(file);
+    const res = await fetch('/.netlify/functions/upload', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        filename: `${prefix}-${safeName}`,
+        contentType: file.type,
+        dataBase64
+      })
+    });
+    const data = await res.json();
+    if(!res.ok){ console.error(data.error); showToast(data.error || 'Upload failed'); return null; }
+    return data.url; // e.g. /media/1699999999999-gallery-photo.jpg
+  }catch(err){
+    console.error(err);
+    showToast('Upload failed');
+    return null;
+  }
+}
+
+/* =========================================================
+   GALLERY
+========================================================= */
+const galleryGrid = document.getElementById('galleryGrid');
+const dropzone = document.getElementById('dropzone');
+const fileInput = document.getElementById('fileInput');
+
+let galleryItems = [];
+
+async function loadGallery(){
+  const { data, error } = await sb.from('church_content').select('value').eq('content_id','gallery_items').maybeSingle();
+  if(error && error.code !== 'PGRST116'){ console.error(error); }
+  try{
+    galleryItems = data && data.value ? JSON.parse(data.value) : [];
+  }catch(e){ galleryItems = []; }
+  renderGallery();
+}
+
+async function saveGallery(){
+  await saveContent('gallery_items', JSON.stringify(galleryItems));
+}
+
+function renderGallery(){
+  galleryGrid.innerHTML = '';
+  if(galleryItems.length === 0){
+    galleryGrid.innerHTML = '<div class="gallery-empty">No photos or videos yet.</div>';
+    return;
+  }
+  galleryItems.slice().reverse().forEach((item)=>{
+    const realIndex = galleryItems.indexOf(item);
+    const cell = document.createElement('div');
+    cell.className = 'gallery-item';
+    const media = item.type === 'video'
+      ? Object.assign(document.createElement('video'), { src:item.url, controls:true, muted:true })
+      : Object.assign(document.createElement('img'), { src:item.url, alt:'Parish photo' });
+    if(item.type !== 'video'){
+      media.addEventListener('click', ()=> openLightbox(item.url, 'Parish photo'));
+    }
+    cell.appendChild(media);
+    const rm = document.createElement('button');
+    rm.className = 'remove-btn';
+    rm.innerHTML = '&times;';
+    rm.title = 'Remove';
+    rm.addEventListener('click', async ()=>{
+      galleryItems.splice(realIndex, 1);
+      await saveGallery();
+      renderGallery();
+      showToast('Removed');
+    });
+    cell.appendChild(rm);
+    galleryGrid.appendChild(cell);
+  });
+}
+
+async function handleFiles(fileList){
+  const files = Array.from(fileList);
+  if(files.length === 0) return;
+  showToast('Uploading ' + files.length + ' file(s)…');
+  for(const file of files){
+    const isVideo = file.type.startsWith('video/');
+    const url = await uploadFile(file, 'gallery');
+    if(url){
+      galleryItems.push({ url, type: isVideo ? 'video' : 'image' });
+    }
+  }
+  await saveGallery();
+  renderGallery();
+  showToast('Gallery updated');
+}
+
+dropzone.addEventListener('click', ()=> fileInput.click());
+fileInput.addEventListener('change', ()=> handleFiles(fileInput.files));
+['dragenter','dragover'].forEach(evt=>{
+  dropzone.addEventListener(evt, (e)=>{ e.preventDefault(); dropzone.classList.add('dragover'); });
+});
+['dragleave','drop'].forEach(evt=>{
+  dropzone.addEventListener(evt, (e)=>{ e.preventDefault(); dropzone.classList.remove('dragover'); });
+});
+dropzone.addEventListener('drop', (e)=>{ handleFiles(e.dataTransfer.files); });
+
+/* =========================================================
+   CONTACT FORM -> church_messages
+========================================================= */
+const contactForm = document.getElementById('contactForm');
+const formStatus = document.getElementById('formStatus');
+
+contactForm.addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  const name = document.getElementById('cf_name').value.trim();
+  const email = document.getElementById('cf_email').value.trim();
+  const message = document.getElementById('cf_message').value.trim();
+  formStatus.textContent = 'Sending…';
+  const { error } = await sb.from('church_messages').insert({ name, email, message });
+  if(error){
+    console.error(error);
+    formStatus.textContent = 'Something went wrong. Please try again or call the office.';
+    return;
+  }
+  formStatus.textContent = 'Thank you — your message has been sent.';
+  contactForm.reset();
+});
+
+/* =========================================================
+   INIT
+========================================================= */
+loadContent();
+loadGallery();
+</script>
+</body>
+</html>
